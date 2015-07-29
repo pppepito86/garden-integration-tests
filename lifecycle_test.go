@@ -426,6 +426,50 @@ var _ = Describe("Lifecycle", func() {
 			})
 		})
 
+		FContext("when working directory specified does not exists", func() {
+			BeforeEach(func() {
+				rootfs = "docker:///cloudfoundry/preexisting_users"
+			})
+
+			Context("and user has permissions to create the directory", func() {
+				It("creates the working directory", func() {
+					stdout := gbytes.NewBuffer()
+
+					process, err := container.Run(garden.ProcessSpec{
+						User: "bob",
+						Path: "ls",
+						Args: []string{"-la", "/home/bob"},
+						Dir:  "/home/bob/willnotexist",
+					}, garden.ProcessIO{
+						Stdout: stdout,
+						Stderr: GinkgoWriter,
+					})
+					Expect(err).ToNot(HaveOccurred())
+					Expect(process.Wait()).To(Equal(0))
+					Expect(stdout).To(gbytes.Say("willnotexist"))
+				})
+			})
+
+			Context("and user does not have permissions to create the directory", func() {
+				It("returns error", func() {
+					stdout := gbytes.NewBuffer()
+
+					process, err := container.Run(garden.ProcessSpec{
+						User: "alice",
+						Path: "ls",
+						Args: []string{"-la", "/home/bob/willnotexist"},
+						Dir:  "/home/bob/willnotexist",
+					}, garden.ProcessIO{
+						Stdout: stdout,
+						Stderr: GinkgoWriter,
+					})
+					Expect(err).ToNot(HaveOccurred())
+					Expect(process.Wait()).ToNot(Equal(0))
+					Expect(stdout).To(gbytes.Say("User does not have permission to create the specified working directory"))
+				})
+			})
+		})
+
 		Context("with a memory limit", func() {
 			JustBeforeEach(func() {
 				err := container.LimitMemory(garden.MemoryLimits{
