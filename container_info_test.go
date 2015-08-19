@@ -7,6 +7,12 @@ import (
 )
 
 var _ = Describe("Container information", func() {
+	JustBeforeEach(func() {
+		var err error
+		container, err = createTestContainer()
+		Expect(err).NotTo(HaveOccurred())
+	})
+
 	Describe("for a single container", func() {
 		BeforeEach(func() {
 			properties = garden.Properties{

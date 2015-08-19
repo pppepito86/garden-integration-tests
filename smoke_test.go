@@ -8,6 +8,12 @@ import (
 )
 
 var _ = Describe("smoke tests", func() {
+	JustBeforeEach(func() {
+		var err error
+		container, err = createTestContainer()
+		Expect(err).NotTo(HaveOccurred())
+	})
+
 	It("can run a process inside a container", func() {
 		stdout := gbytes.NewBuffer()
 

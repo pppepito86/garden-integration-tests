@@ -12,6 +12,11 @@ import (
 )
 
 var _ = Describe("performance", func() {
+	JustBeforeEach(func() {
+		var err error
+		container, err = createTestContainer()
+		Expect(err).NotTo(HaveOccurred())
+	})
 
 	BeforeEach(func() {
 		rootfs = "docker:///cloudfoundry/ubuntu-bc"

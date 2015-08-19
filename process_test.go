@@ -12,6 +12,12 @@ import (
 )
 
 var _ = Describe("Process", func() {
+	JustBeforeEach(func() {
+		var err error
+		container, err = createTestContainer()
+		Expect(err).NotTo(HaveOccurred())
+	})
+
 	BeforeEach(func() {
 		rootfs = "docker:///ubuntu"
 	})

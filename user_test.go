@@ -11,6 +11,12 @@ import (
 )
 
 var _ = Describe("users", func() {
+	JustBeforeEach(func() {
+		var err error
+		container, err = createTestContainer()
+		Expect(err).NotTo(HaveOccurred())
+	})
+
 	Context("when nobody maps to 65534", func() {
 		BeforeEach(func() {
 			rootfs = "docker:///ubuntu"

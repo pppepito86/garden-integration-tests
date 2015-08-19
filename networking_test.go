@@ -14,6 +14,12 @@ import (
 )
 
 var _ = Describe("Networking", func() {
+	JustBeforeEach(func() {
+		var err error
+		container, err = createTestContainer()
+		Expect(err).NotTo(HaveOccurred())
+	})
+
 	It("can be contacted after a NetIn", func() {
 		process, err := container.Run(garden.ProcessSpec{
 			Path: "sh",

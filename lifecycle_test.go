@@ -20,6 +20,12 @@ import (
 )
 
 var _ = Describe("Lifecycle", func() {
+	JustBeforeEach(func() {
+		var err error
+		container, err = createTestContainer()
+		Expect(err).NotTo(HaveOccurred())
+	})
+
 	Context("Creating a container with limits", func() {
 		BeforeEach(func() {
 			limits = garden.Limits{

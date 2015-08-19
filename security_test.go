@@ -12,6 +12,12 @@ import (
 )
 
 var _ = Describe("Security", func() {
+	JustBeforeEach(func() {
+		var err error
+		container, err = createTestContainer()
+		Expect(err).NotTo(HaveOccurred())
+	})
+
 	Describe("PID namespace", func() {
 		It("isolates processes so that only processes from inside the container are visible", func() {
 			_, err := container.Run(garden.ProcessSpec{

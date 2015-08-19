@@ -67,3 +67,14 @@ func getContainerHandles() []string {
 
 	return handles
 }
+
+func createTestContainer() (garden.Container, error) {
+	gardenClient = client.New(connection.New("tcp", gardenHost))
+
+	return gardenClient.Create(garden.ContainerSpec{
+		RootFSPath: rootfs,
+		Privileged: privilegedContainer,
+		Properties: properties,
+		Limits:     limits,
+	})
+}
