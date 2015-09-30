@@ -3,15 +3,62 @@ package garden_integration_tests_test
 import (
 	"io"
 	"os"
+	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/cloudfoundry-incubator/garden"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
+	"github.com/onsi/gomega/gexec"
 )
 
 var _ = Describe("Security", func() {
+	Describe("Network namespace", func() {
+		It("should isolate the container from the host's network namespace", func() {
+			_, err := container.Run(garden.ProcessSpec{
+				Path: "sh",
+				Args: []string{"-c", "sleep 1000"},
+				User: "root",
+			}, garden.ProcessIO{
+				Stdout: GinkgoWriter,
+				Stderr: GinkgoWriter,
+			})
+			Expect(err).ToNot(HaveOccurred())
+			time.Sleep(time.Hour)
+			_, err = container.Run(garden.ProcessSpec{
+				Path: "sh",
+				Args: []string{"-c", "echo hallo | nc -l -p 8080"},
+				User: "root",
+			}, garden.ProcessIO{
+				Stdout: GinkgoWriter,
+				Stderr: GinkgoWriter,
+			})
+			Expect(err).ToNot(HaveOccurred())
+
+			gardenHostname := strings.Split(gardenHost, ":")[0]
+
+			// Allow nc time to start running.
+			time.Sleep(2 * time.Second)
+
+			nc, err := gexec.Start(exec.Command("nc", gardenHostname, "8080"), GinkgoWriter, GinkgoWriter)
+			Expect(err).ToNot(HaveOccurred())
+			Consistently(nc).ShouldNot(gbytes.Say("hallo"))
+			Eventually(nc).Should(gexec.Exit(1))
+			//			ifconfig, err := container.Run(garden.ProcessSpec{
+			//				User: "root",
+			//				Path: "/bin/ping",
+			//				Args: []string{"google.com"},
+			//			}, garden.ProcessIO{
+			//				Stdout: GinkgoWriter,
+			//				Stderr: GinkgoWriter,
+			//			})
+			//			Expect(err).ToNot(HaveOccurred())
+			//			Expect(ifconfig.Wait()).To(Equal(99))
+		})
+	})
+
 	Describe("PID namespace", func() {
 		It("isolates processes so that only processes from inside the container are visible", func() {
 			_, err := container.Run(garden.ProcessSpec{
