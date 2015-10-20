@@ -39,6 +39,10 @@ func TestGardenIntegrationTests(t *testing.T) {
 	JustBeforeEach(func() {
 		gardenClient = client.New(connection.New("tcp", gardenHost))
 
+		if !privilegedContainer {
+			Skip("Unprivileged container test")
+		}
+
 		var err error
 		container, err = gardenClient.Create(garden.ContainerSpec{
 			RootFSPath: rootfs,
