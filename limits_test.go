@@ -52,7 +52,7 @@ var _ = Describe("Limits", func() {
 						Expect(err).ToNot(HaveOccurred())
 						Expect(process.Wait()).To(Equal(0))
 
-						Eventually(reporter).Should(Equal(initialBytes + uint64(10*1024*1024)))
+						Eventually(reporter).Should(BeNumerically("~", initialBytes+10*1024*1024, 1024*1024))
 
 						process, err = container.Run(garden.ProcessSpec{
 							User: "alice",
@@ -65,8 +65,7 @@ var _ = Describe("Limits", func() {
 						Eventually(reporter).Should(Equal(initialBytes + uint64(20*1024*1024)))
 					},
 
-					// PENDED until we have exclusive metrics with AUFS
-					PEntry("with exclusive metrics", func() uint64 {
+					FEntry("with exclusive metrics", func() uint64 {
 						metrics, err := container.Metrics()
 						Expect(err).ToNot(HaveOccurred())
 						return metrics.DiskStat.ExclusiveBytesUsed
