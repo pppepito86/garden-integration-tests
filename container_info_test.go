@@ -117,4 +117,32 @@ var _ = Describe("Container information", func() {
 		})
 	})
 
+	Describe("multiple containers", func() {
+		var extraContainer garden.Container
+
+		BeforeEach(func() {
+			var err error
+			extraContainer, err = gardenClient.Create(garden.ContainerSpec{})
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		AfterEach(func() {
+			if extraContainer != nil {
+				Expect(gardenClient.Destroy(extraContainer.Handle())).To(Succeed())
+			}
+		})
+
+		FIt("should list all containers", func() {
+			containers, err := gardenClient.Containers(garden.Properties{})
+			Expect(err).ToNot(HaveOccurred())
+
+			handles := []string{}
+			for _, c := range containers {
+				handles = append(handles, c.Handle())
+			}
+
+			Expect(handles).To(ConsistOf(container.Handle(), extraContainer.Handle()))
+		})
+	})
+
 })
