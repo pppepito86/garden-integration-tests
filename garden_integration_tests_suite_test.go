@@ -32,7 +32,8 @@ func TestGardenIntegrationTests(t *testing.T) {
 
 	BeforeEach(func() {
 		assertContainerCreate = true
-		rootfs = "docker:///cloudfoundry/garden-busybox"
+		// rootfs = "docker:///cloudfoundry/garden-busybox"
+		rootfs = ""
 		privilegedContainer = false
 		properties = garden.Properties{}
 		limits = garden.Limits{}

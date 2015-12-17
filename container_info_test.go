@@ -15,7 +15,7 @@ var _ = Describe("Container information", func() {
 			}
 		})
 
-		Describe("info for one container", func() {
+		PDescribe("info for one container", func() {
 			It("includes the properties", func() {
 				info, err := container.Info()
 				Expect(err).ToNot(HaveOccurred())
@@ -27,7 +27,7 @@ var _ = Describe("Container information", func() {
 			})
 		})
 
-		Describe("getting container metrics without getting info", func() {
+		PDescribe("getting container metrics without getting info", func() {
 			It("can list metrics", func() {
 				metrics, err := container.Metrics()
 				Expect(err).ToNot(HaveOccurred())
@@ -48,7 +48,7 @@ var _ = Describe("Container information", func() {
 			})
 		})
 
-		Describe("updating container properties", func() {
+		PDescribe("updating container properties", func() {
 			It("can CRUD", func() {
 				value, err := container.Property("foo")
 				Expect(err).ToNot(HaveOccurred())
@@ -117,7 +117,7 @@ var _ = Describe("Container information", func() {
 		})
 	})
 
-	Describe("multiple containers", func() {
+	PDescribe("multiple containers", func() {
 		var extraContainer garden.Container
 
 		BeforeEach(func() {
@@ -132,7 +132,7 @@ var _ = Describe("Container information", func() {
 			}
 		})
 
-		FIt("should list all containers", func() {
+		It("should list all containers", func() {
 			containers, err := gardenClient.Containers(garden.Properties{})
 			Expect(err).ToNot(HaveOccurred())
 

@@ -59,7 +59,7 @@ var _ = Describe("Security", func() {
 			Expect(stdout).To(gbytes.Say("0\n1\n2\n3\n")) // stdin, stdout, stderr, /proc/self/fd
 		})
 
-		It("has the correct initial process", func() {
+		PIt("has the correct initial process", func() {
 			stdout := gbytes.NewBuffer()
 			process, err := container.Run(garden.ProcessSpec{
 				User: "root",
@@ -123,7 +123,7 @@ var _ = Describe("Security", func() {
 				privilegedContainer = false
 			})
 
-			It("/proc IS mounted as Read-Only", func() {
+			PIt("/proc IS mounted as Read-Only", func() {
 				stdout := gbytes.NewBuffer()
 
 				process, err := container.Run(garden.ProcessSpec{
@@ -140,7 +140,7 @@ var _ = Describe("Security", func() {
 				Expect(stdout).To(gbytes.Say("proc /proc proc ro"))
 			})
 
-			It("/sys IS mounted as Read-Only", func() {
+			PIt("/sys IS mounted as Read-Only", func() {
 				stdout := gbytes.NewBuffer()
 
 				process, err := container.Run(garden.ProcessSpec{
@@ -180,7 +180,7 @@ var _ = Describe("Security", func() {
 				Expect(stdout).To(gbytes.Say("proc /proc proc rw"))
 			})
 
-			It("/sys IS mounted as Read-Only", func() {
+			PIt("/sys IS mounted as Read-Only", func() {
 				stdout := gbytes.NewBuffer()
 
 				process, err := container.Run(garden.ProcessSpec{
@@ -226,7 +226,7 @@ var _ = Describe("Security", func() {
 	})
 
 	Describe("Users and groups", func() {
-		It("maintains setuid permissions in unprivileged containers", func() {
+		PIt("maintains setuid permissions in unprivileged containers", func() {
 			stdout := gbytes.NewBuffer()
 			container.Run(garden.ProcessSpec{
 				User: "alice",
@@ -238,7 +238,7 @@ var _ = Describe("Security", func() {
 		})
 
 		Context("when running a command in a working dir", func() {
-			It("executes with setuid and setgid", func() {
+			PIt("executes with setuid and setgid", func() {
 				stdout := gbytes.NewBuffer()
 				process, err := container.Run(garden.ProcessSpec{
 					User: "alice",
@@ -258,7 +258,7 @@ var _ = Describe("Security", func() {
 		})
 
 		Context("when running a command as a non-root user", func() {
-			It("executes with setuid and setgid", func() {
+			PIt("executes with setuid and setgid", func() {
 				stdout := gbytes.NewBuffer()
 				process, err := container.Run(garden.ProcessSpec{
 					User: "alice",
@@ -276,7 +276,7 @@ var _ = Describe("Security", func() {
 				Expect(stdout).To(gbytes.Say("1001\n1001\n"))
 			})
 
-			It("sets $HOME, $USER, and $PATH", func() {
+			PIt("sets $HOME, $USER, and $PATH", func() {
 				stdout := gbytes.NewBuffer()
 				process, err := container.Run(garden.ProcessSpec{
 					User: "alice",
@@ -317,7 +317,7 @@ var _ = Describe("Security", func() {
 				})
 			})
 
-			It("executes in the user's home directory", func() {
+			PIt("executes in the user's home directory", func() {
 				stdout := gbytes.NewBuffer()
 				process, err := container.Run(garden.ProcessSpec{
 					User: "alice",
@@ -353,7 +353,7 @@ var _ = Describe("Security", func() {
 				Expect(stdout).To(gbytes.Say("VAR1=VALUE1\nVAR2=VALUE2\n"))
 			})
 
-			It("searches a sanitized path not including /sbin for the executable", func() {
+			PIt("searches a sanitized path not including /sbin for the executable", func() {
 				process, err := container.Run(garden.ProcessSpec{
 					User: "alice",
 					Path: "ls",
@@ -400,7 +400,7 @@ var _ = Describe("Security", func() {
 				Expect(stdout).To(gbytes.Say("0\n0\n"))
 			})
 
-			It("sets $HOME, $USER, and $PATH", func() {
+			PIt("sets $HOME, $USER, and $PATH", func() {
 				stdout := gbytes.NewBuffer()
 				process, err := container.Run(garden.ProcessSpec{
 					User: "root",
@@ -418,7 +418,7 @@ var _ = Describe("Security", func() {
 				Expect(stdout).To(gbytes.Say("HOME=/root\nPATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\nPWD=/root\nSHLVL=1\nUSER=root\n"))
 			})
 
-			It("executes in root's home directory", func() {
+			PIt("executes in root's home directory", func() {
 				stdout := gbytes.NewBuffer()
 				process, err := container.Run(garden.ProcessSpec{
 					User: "root",
@@ -471,7 +471,7 @@ var _ = Describe("Security", func() {
 	})
 
 	Context("by default (unprivileged)", func() {
-		It("does not get root privileges on host resources", func() {
+		PIt("does not get root privileges on host resources", func() {
 			process, err := container.Run(garden.ProcessSpec{
 				Path: "sh",
 				User: "root",
@@ -493,7 +493,7 @@ var _ = Describe("Security", func() {
 			Expect(process.Wait()).To(Equal(0))
 		})
 
-		Context("with a docker image", func() {
+		PContext("with a docker image", func() {
 			BeforeEach(func() {
 				rootfs = "docker:///cloudfoundry/preexisting_users"
 			})
@@ -622,7 +622,7 @@ var _ = Describe("Security", func() {
 			Expect(process.Wait()).To(Equal(0))
 		})
 
-		It("sees root-owned files in the rootfs as owned by the container's root user", func() {
+		PIt("sees root-owned files in the rootfs as owned by the container's root user", func() {
 			stdout := gbytes.NewBuffer()
 			process, err := container.Run(garden.ProcessSpec{
 				User: "root",
@@ -637,7 +637,7 @@ var _ = Describe("Security", func() {
 			Expect(stdout).To(gbytes.Say(" root "))
 		})
 
-		Context("when the process is run as non-root user", func() {
+		PContext("when the process is run as non-root user", func() {
 			BeforeEach(func() {
 				rootfs = "docker:///ubuntu"
 			})

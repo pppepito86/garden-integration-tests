@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Limits", func() {
+var _ = PDescribe("Limits", func() {
 	Describe("LimitMemory", func() {
 		Context("with a memory limit", func() {
 			JustBeforeEach(func() {

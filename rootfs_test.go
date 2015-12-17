@@ -9,7 +9,7 @@ import (
 	"github.com/onsi/gomega/gbytes"
 )
 
-var _ = Describe("Rootfses", func() {
+var _ = PDescribe("Rootfses", func() {
 	Context("when the rootfs path is a docker image URL", func() {
 		Context("and the docker image specifies $PATH", func() {
 			BeforeEach(func() {

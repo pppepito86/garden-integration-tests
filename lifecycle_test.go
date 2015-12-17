@@ -20,7 +20,7 @@ import (
 )
 
 var _ = Describe("Lifecycle", func() {
-	Context("Creating a container with limits", func() {
+	PContext("Creating a container with limits", func() {
 		BeforeEach(func() {
 			limits = garden.Limits{
 				Memory: garden.MemoryLimits{
@@ -53,7 +53,7 @@ var _ = Describe("Lifecycle", func() {
 		})
 	})
 
-	It("provides /dev/shm as tmpfs in the container", func() {
+	PIt("provides /dev/shm as tmpfs in the container", func() {
 		process, err := container.Run(garden.ProcessSpec{
 			User: "alice",
 			Path: "dd",
@@ -81,7 +81,7 @@ var _ = Describe("Lifecycle", func() {
 		Expect(outBuf).To(gbytes.Say("rw,nodev,relatime"))
 	})
 
-	It("gives the container a hostname based on its id", func() {
+	PIt("gives the container a hostname based on its id", func() {
 		stdout := gbytes.NewBuffer()
 
 		_, err := container.Run(garden.ProcessSpec{
@@ -101,7 +101,7 @@ var _ = Describe("Lifecycle", func() {
 		})
 	})
 
-	Context("and sending an Info request", func() {
+	PContext("and sending an Info request", func() {
 		It("returns the container's info", func() {
 			info, err := container.Info()
 			Expect(err).ToNot(HaveOccurred())
@@ -110,7 +110,7 @@ var _ = Describe("Lifecycle", func() {
 		})
 	})
 
-	Context("Using a docker image", func() {
+	PContext("Using a docker image", func() {
 		Context("when there is a VOLUME associated with the docker image", func() {
 			BeforeEach(func() {
 				// dockerfile contains `VOLUME /foo`, see diego-dockerfiles/with-volume
@@ -166,7 +166,7 @@ var _ = Describe("Lifecycle", func() {
 				Eventually(stdout).Should(gbytes.Say("root\n"))
 			})
 
-			Context("and there is no /root directory in the image", func() {
+			PContext("and there is no /root directory in the image", func() {
 				BeforeEach(func() {
 					rootfs = "docker:///cloudfoundry/grace-busybox"
 				})
@@ -313,7 +313,7 @@ var _ = Describe("Lifecycle", func() {
 				close(done)
 			}, 10.0)
 
-			It("sends a TERMINATE signal to the process if requested", func(done Done) {
+			PIt("sends a TERMINATE signal to the process if requested", func(done Done) {
 				stdout := gbytes.NewBuffer()
 
 				process, err := container.Run(garden.ProcessSpec{
@@ -385,7 +385,7 @@ var _ = Describe("Lifecycle", func() {
 			close(done)
 		}, 480.0)
 
-		It("collects the process's full output, even if it exits quickly after", func() {
+		PIt("collects the process's full output, even if it exits quickly after", func() {
 			for i := 0; i < 1000; i++ {
 				stdout := gbytes.NewBuffer()
 
@@ -411,7 +411,7 @@ var _ = Describe("Lifecycle", func() {
 			}
 		})
 
-		It("streams input to the process's stdin", func() {
+		PIt("streams input to the process's stdin", func() {
 			stdout := gbytes.NewBuffer()
 
 			process, err := container.Run(garden.ProcessSpec{
@@ -449,7 +449,7 @@ var _ = Describe("Lifecycle", func() {
 			}
 		})
 
-		Context("when no user is specified", func() {
+		PContext("when no user is specified", func() {
 
 			It("returns an error", func() {
 				_, err := container.Run(garden.ProcessSpec{
@@ -459,7 +459,7 @@ var _ = Describe("Lifecycle", func() {
 			})
 		})
 
-		Context("with a memory limit", func() {
+		PContext("with a memory limit", func() {
 			JustBeforeEach(func() {
 				err := container.LimitMemory(garden.MemoryLimits{
 					LimitInBytes: 64 * 1024 * 1024,
@@ -481,7 +481,7 @@ var _ = Describe("Lifecycle", func() {
 			})
 		})
 
-		Context("with a tty", func() {
+		PContext("with a tty", func() {
 			It("executes the process with a raw tty with the given window size", func() {
 				stdout := gbytes.NewBuffer()
 
@@ -564,7 +564,7 @@ var _ = Describe("Lifecycle", func() {
 			})
 		})
 
-		Context("with a working directory", func() {
+		PContext("with a working directory", func() {
 			It("executes with the working directory as the dir", func() {
 				stdout := gbytes.NewBuffer()
 
@@ -582,7 +582,7 @@ var _ = Describe("Lifecycle", func() {
 			})
 		})
 
-		Context("and then attaching to it", func() {
+		PContext("and then attaching to it", func() {
 			It("streams output and the exit status to the attached request", func(done Done) {
 				stdout1 := gbytes.NewBuffer()
 				stdout2 := gbytes.NewBuffer()
@@ -616,7 +616,7 @@ var _ = Describe("Lifecycle", func() {
 			}, 10.0)
 		})
 
-		Context("and then sending a stop request", func() {
+		PContext("and then sending a stop request", func() {
 			It("terminates all running processes", func() {
 				stdout := gbytes.NewBuffer()
 
@@ -771,7 +771,7 @@ var _ = Describe("Lifecycle", func() {
 				Expect(err).ToNot(HaveOccurred())
 			})
 
-			It("creates the files in the container, as the specified user", func() {
+			PIt("creates the files in the container, as the specified user", func() {
 				err := container.StreamIn(garden.StreamInSpec{
 					User:      "alice",
 					Path:      "/home/alice",
@@ -805,7 +805,7 @@ var _ = Describe("Lifecycle", func() {
 				Expect(output).To(gbytes.Say("alice"))
 			})
 
-			Context("when no user specified", func() {
+			PContext("when no user specified", func() {
 				It("streams the files in as root", func() {
 					err := container.StreamIn(garden.StreamInSpec{
 						Path:      "/home/alice",
@@ -840,7 +840,7 @@ var _ = Describe("Lifecycle", func() {
 				})
 			})
 
-			Context("when the specified user does not have permission to stream in", func() {
+			PContext("when the specified user does not have permission to stream in", func() {
 				JustBeforeEach(func() {
 					process, err := container.Run(garden.ProcessSpec{
 						User: "root",
@@ -864,7 +864,7 @@ var _ = Describe("Lifecycle", func() {
 				})
 			})
 
-			Context("in a privileged container", func() {
+			PContext("in a privileged container", func() {
 				BeforeEach(func() {
 					privilegedContainer = true
 				})
@@ -888,7 +888,7 @@ var _ = Describe("Lifecycle", func() {
 				})
 			})
 
-			It("streams in relative to the default run directory", func() {
+			PIt("streams in relative to the default run directory", func() {
 				err := container.StreamIn(garden.StreamInSpec{
 					User:      "alice",
 					Path:      ".",
@@ -918,7 +918,7 @@ var _ = Describe("Lifecycle", func() {
 				Expect(err).To(HaveOccurred())
 			})
 
-			Context("and then copying them out", func() {
+			PContext("and then copying them out", func() {
 				itStreamsTheDirectory := func(user string) {
 					It("streams the directory", func() {
 						process, err := container.Run(garden.ProcessSpec{
@@ -988,7 +988,7 @@ var _ = Describe("Lifecycle", func() {
 		})
 	})
 
-	Context("when the container GraceTime is modified", func() {
+	PContext("when the container GraceTime is modified", func() {
 		It("should disappear after grace time and before timeout", func() {
 			_, err := gardenClient.Lookup(container.Handle())
 			Expect(err).NotTo(HaveOccurred())

@@ -11,7 +11,7 @@ import (
 	"github.com/onsi/gomega/gbytes"
 )
 
-var _ = Describe("Process", func() {
+var _ = PDescribe("Process", func() {
 	BeforeEach(func() {
 		rootfs = "docker:///ubuntu"
 	})
