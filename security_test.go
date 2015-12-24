@@ -200,7 +200,7 @@ var _ = Describe("Security", func() {
 	})
 
 	Describe("Control groups", func() {
-		It("places the container in the required cgroup subsystems", func() {
+		PIt("places the container in the required cgroup subsystems", func() {
 			stdout := gbytes.NewBuffer()
 			process, err := container.Run(garden.ProcessSpec{
 				User: "root",
