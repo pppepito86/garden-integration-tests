@@ -287,7 +287,7 @@ var _ = Describe("Lifecycle", func() {
 				Eventually(stdout).ShouldNot(gbytes.Say("waiting"))
 			}
 
-			It("sends a KILL signal to the process if requested", func(done Done) {
+			FIt("sends a KILL signal to the process if requested", func(done Done) {
 				stdout := gbytes.NewBuffer()
 				process, err := container.Run(garden.ProcessSpec{
 					User: "alice",
@@ -313,7 +313,7 @@ var _ = Describe("Lifecycle", func() {
 				close(done)
 			}, 10.0)
 
-			It("sends a TERMINATE signal to the process if requested", func(done Done) {
+			FIt("sends a TERMINATE signal to the process if requested", func(done Done) {
 				stdout := gbytes.NewBuffer()
 
 				process, err := container.Run(garden.ProcessSpec{
@@ -957,7 +957,7 @@ var _ = Describe("Lifecycle", func() {
 				})
 
 				Context("with a trailing slash", func() {
-					It("streams the contents of the directory", func() {
+					FIt("streams the contents of the directory", func() {
 						process, err := container.Run(garden.ProcessSpec{
 							User: "alice",
 							Path: "sh",
@@ -989,7 +989,7 @@ var _ = Describe("Lifecycle", func() {
 	})
 
 	Context("when the container GraceTime is modified", func() {
-		It("should disappear after grace time and before timeout", func() {
+		FIt("should disappear after grace time and before timeout", func() {
 			_, err := gardenClient.Lookup(container.Handle())
 			Expect(err).NotTo(HaveOccurred())
 

@@ -183,7 +183,7 @@ var _ = Describe("Limits", func() {
 			})
 
 			Context("and run a process that exceeds the quota", func() {
-				It("kills the process", func() {
+				FIt("kills the process", func() {
 					dd, err := container.Run(garden.ProcessSpec{
 						User: "root",
 						Path: "dd",
@@ -205,7 +205,7 @@ var _ = Describe("Limits", func() {
 			})
 
 			Context("and run a process that exceeds the quota as bob", func() {
-				It("kills the process", func() {
+				FIt("kills the process", func() {
 					dd, err := container.Run(garden.ProcessSpec{
 						User: "bob",
 						Path: "dd",

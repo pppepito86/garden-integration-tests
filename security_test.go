@@ -542,7 +542,7 @@ var _ = Describe("Security", func() {
 				Expect(stdout).To(gbytes.Say(" alicesfile"))
 			})
 
-			It("sees devices as owned by root", func() {
+			FIt("sees devices as owned by root", func() {
 				out := gbytes.NewBuffer()
 				process, err := container.Run(garden.ProcessSpec{
 					User: "root",
@@ -559,7 +559,7 @@ var _ = Describe("Security", func() {
 				Expect(string(out.Contents())).ToNot(ContainSubstring("65534"))
 			})
 
-			It("lets alice write in /home/alice", func() {
+			FIt("lets alice write in /home/alice", func() {
 				process, err := container.Run(garden.ProcessSpec{
 					User: "alice",
 					Path: "touch",
