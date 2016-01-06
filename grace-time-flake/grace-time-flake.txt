@@ -1,0 +1,71 @@
+[1]         /tmp/build/1bffd8f2-17a7-4f89-4b1e-aca5f851fff4/release-develop/src/github.com/cloudfoundry-incubator/garden-integration-tests/limits_test.go:194
+[1] ------------------------------
+[1] Limits LimitDisk a rootfs with pre-existing users and run a process that exceeds the quota as bob
+[1]   kills the process
+[1]   /tmp/build/1bffd8f2-17a7-4f89-4b1e-aca5f851fff4/release-develop/src/github.com/cloudfoundry-incubator/garden-integration-tests/limits_test.go:216
+
+[2]       /tmp/build/1bffd8f2-17a7-4f89-4b1e-aca5f851fff4/release-develop/src/github.com/cloudfoundry-incubator/garden-integration-tests/security_test.go:560
+[2] ------------------------------
+[2] Security by default (unprivileged) with a docker image
+[2]   lets alice write in /home/alice
+[2]   /tmp/build/1bffd8f2-17a7-4f89-4b1e-aca5f851fff4/release-develop/src/github.com/cloudfoundry-incubator/garden-integration-tests/security_test.go:570
+
+[3]     /tmp/build/1bffd8f2-17a7-4f89-4b1e-aca5f851fff4/release-develop/src/github.com/cloudfoundry-incubator/garden-integration-tests/lifecycle_test.go:257
+[3] ------------------------------
+[3] Lifecycle running a process even when /bin/kill does not exist
+[3]   sends a KILL signal to the process if requested
+[3]   /tmp/build/1bffd8f2-17a7-4f89-4b1e-aca5f851fff4/release-develop/src/github.com/cloudfoundry-incubator/garden-integration-tests/lifecycle_test.go:314
+
+[4]           /tmp/build/1bffd8f2-17a7-4f89-4b1e-aca5f851fff4/release-develop/src/github.com/cloudfoundry-incubator/garden-integration-tests/lifecycle_test.go:985
+[4] ------------------------------
+[4] Lifecycle when the container GraceTime is modified
+[4]   should disappear after grace time and before timeout
+[4]   /tmp/build/1bffd8f2-17a7-4f89-4b1e-aca5f851fff4/release-develop/src/github.com/cloudfoundry-incubator/garden-integration-tests/lifecycle_test.go:1004
+
+[1]         /tmp/build/1bffd8f2-17a7-4f89-4b1e-aca5f851fff4/release-develop/src/github.com/cloudfoundry-incubator/garden-integration-tests/limits_test.go:216
+[1] ------------------------------
+[1] Limits LimitDisk a rootfs with pre-existing users and run a process that exceeds the quota as alice
+[1]   kills the process
+[1]   /tmp/build/1bffd8f2-17a7-4f89-4b1e-aca5f851fff4/release-develop/src/github.com/cloudfoundry-incubator/garden-integration-tests/limits_test.go:228
+
+[2]       /tmp/build/1bffd8f2-17a7-4f89-4b1e-aca5f851fff4/release-develop/src/github.com/cloudfoundry-incubator/garden-integration-tests/security_test.go:570
+[2] ------------------------------
+[2] Security by default (unprivileged) with a docker image
+[2]   lets root write to files in the /root directory
+[2]   /tmp/build/1bffd8f2-17a7-4f89-4b1e-aca5f851fff4/release-develop/src/github.com/cloudfoundry-incubator/garden-integration-tests/security_test.go:580
+
+[3]       /tmp/build/1bffd8f2-17a7-4f89-4b1e-aca5f851fff4/release-develop/src/github.com/cloudfoundry-incubator/garden-integration-tests/lifecycle_test.go:314
+[3] ------------------------------
+[3] Lifecycle running a process even when /bin/kill does not exist
+[3]   sends a TERMINATE signal to the process if requested
+[3]   /tmp/build/1bffd8f2-17a7-4f89-4b1e-aca5f851fff4/release-develop/src/github.com/cloudfoundry-incubator/garden-integration-tests/lifecycle_test.go:341
+{"timestamp":"1452077396.601618290","source":"garden-linux","message":"garden-linux.oven-cleaner.remove.get-image","log_level":2,"data":{"GRAPH_ID":"6068a87e65d1efd2178b1c308be57bb5c6f9bb12c856c434f22fea3342ff9514","ID":"9mgb40qmf5d","error":"could not find image: no such id: 6068a87e65d1efd2178b1c308be57bb5c6f9bb12c856c434f22fea3342ff9514","session":"5.231"}}
+
+[4]
+[4] • Failure [28.789 seconds]
+[4] Lifecycle
+[4] /tmp/build/1bffd8f2-17a7-4f89-4b1e-aca5f851fff4/release-develop/src/github.com/cloudfoundry-incubator/garden-integration-tests/lifecycle_test.go:1006
+[4]   when the container GraceTime is modified
+[4]   /tmp/build/1bffd8f2-17a7-4f89-4b1e-aca5f851fff4/release-develop/src/github.com/cloudfoundry-incubator/garden-integration-tests/lifecycle_test.go:1005
+[4]     should disappear after grace time and before timeout [It]
+[4]     /tmp/build/1bffd8f2-17a7-4f89-4b1e-aca5f851fff4/release-develop/src/github.com/cloudfoundry-incubator/garden-integration-tests/lifecycle_test.go:1004
+[4]
+[4]     Timed out after 10.001s.
+[4]     Expected an error to have occurred.  Got:
+[4]         <nil>: nil
+[4]
+[4]     /tmp/build/1bffd8f2-17a7-4f89-4b1e-aca5f851fff4/release-develop/src/github.com/cloudfoundry-incubator/garden-integration-tests/lifecycle_test.go:1001
+[4] ------------------------------
+
+
+-----
+
+The missing layer --> 4e686faefad2f24dcaa5ba33731bfec3d1ec6eca4ef7152c279101332fc32945
+The layers that were found in the system:
+        * 0c81ccb3bc3b58a61c8db7b685bb72e22f5d14dd225566a958f02207cafab993
+        * 5279f5fd133dc3b4424bff5ca50f3522a88b45b41f60757c97d23ffd4606fa8f
+
+Next run:
+        - missing layer: 6503d1cb5675b092895ccdb51dd4d83095209ba995737507dd43bfbd9970596d
+        - layers in graph are the same
+
