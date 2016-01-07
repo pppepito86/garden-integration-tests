@@ -79,26 +79,6 @@ var _ = Describe("Security", func() {
 		})
 	})
 
-	Describe("Mount namespace", func() {
-		It("unmounts /tmp/garden-host* in the container", func() {
-			stdout := gbytes.NewBuffer()
-			process, err := container.Run(garden.ProcessSpec{
-				User: "root",
-				Path: "/bin/cat",
-				Args: []string{"/proc/mounts"},
-			}, garden.ProcessIO{
-				Stdout: stdout,
-				Stderr: GinkgoWriter,
-			})
-			Expect(err).ToNot(HaveOccurred())
-
-			exitStatus, err := process.Wait()
-			Expect(err).ToNot(HaveOccurred())
-			Expect(exitStatus).To(Equal(0))
-			Expect(stdout).ToNot(gbytes.Say(` /tmp/garden-host`))
-		})
-	})
-
 	Describe("File system", func() {
 		It("/tmp is world-writable in the container", func() {
 			stdout := gbytes.NewBuffer()
