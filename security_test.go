@@ -98,6 +98,23 @@ var _ = Describe("Security", func() {
 			Expect(stdout).To(gbytes.Say(`drwxrwxrwt`))
 		})
 
+		It("/tmp IS mounted as tmpfs", func() {
+			stdout := gbytes.NewBuffer()
+
+			process, err := container.Run(garden.ProcessSpec{
+				User: "root",
+				Path: "cat",
+				Args: []string{"/proc/mounts"},
+			}, garden.ProcessIO{
+				Stdout: stdout,
+				Stderr: GinkgoWriter,
+			})
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(process.Wait()).To(Equal(0))
+			Expect(stdout).To(gbytes.Say("tmpfs /tmp tmpfs"))
+		})
+
 		Context("in an unprivileged container", func() {
 			BeforeEach(func() {
 				privilegedContainer = false
