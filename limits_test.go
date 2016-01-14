@@ -7,8 +7,8 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = PDescribe("Limits", func() {
-	Describe("LimitMemory", func() {
+var _ = Describe("Limits", func() {
+	PDescribe("LimitMemory", func() {
 		Context("with a memory limit", func() {
 			JustBeforeEach(func() {
 				err := container.LimitMemory(garden.MemoryLimits{
@@ -41,7 +41,23 @@ var _ = PDescribe("Limits", func() {
 			limits.Disk.Scope = garden.DiskLimitScopeTotal
 		})
 
-		DescribeTable("Metrics",
+		// Add alice user to guardian tests, because guardian doesn't yet support
+		// pulling images from docker. Once it does, we'll be able to (successfully)
+		// use the garden busybox image on dockerhub, which has alice already.
+		JustBeforeEach(func() {
+			process, err := container.Run(garden.ProcessSpec{
+				User: "root",
+				Path: "sh",
+				Args: []string{"-c", "id -u alice || adduser -D alice"},
+			}, garden.ProcessIO{
+				Stdout: GinkgoWriter,
+				Stderr: GinkgoWriter,
+			})
+			Expect(err).ToNot(HaveOccurred())
+			Expect(process.Wait()).To(Equal(0))
+		})
+
+		PDescribeTable("Metrics",
 			func(reporter func() uint64) {
 				initialBytes := reporter()
 				process, err := container.Run(garden.ProcessSpec{
@@ -91,7 +107,7 @@ var _ = PDescribe("Limits", func() {
 			})
 		})
 
-		Context("when the scope is total", func() {
+		PContext("when the scope is total", func() {
 			BeforeEach(func() {
 				rootfs = "docker:///busybox#1.23"
 				limits.Disk.ByteSoft = 10 * 1024 * 1024
@@ -170,7 +186,7 @@ var _ = PDescribe("Limits", func() {
 				limits.Disk.Scope = garden.DiskLimitScopeExclusive
 			})
 
-			Context("and run a process that would exceed the quota due to the size of the rootfs", func() {
+			PContext("and run a process that would exceed the quota due to the size of the rootfs", func() {
 				It("does not kill the process", func() {
 					dd, err := container.Run(garden.ProcessSpec{
 						User: "root",
@@ -195,7 +211,7 @@ var _ = PDescribe("Limits", func() {
 			})
 		})
 
-		Context("a rootfs with pre-existing users", func() {
+		PContext("a rootfs with pre-existing users", func() {
 			BeforeEach(func() {
 				rootfs = "docker:///cloudfoundry/preexisting_users"
 
@@ -299,7 +315,7 @@ var _ = PDescribe("Limits", func() {
 			})
 		})
 
-		Context("when multiple containers are created for the same user", func() {
+		PContext("when multiple containers are created for the same user", func() {
 			var container2 garden.Container
 			var err error
 
