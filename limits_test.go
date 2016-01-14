@@ -186,7 +186,7 @@ var _ = Describe("Limits", func() {
 				limits.Disk.Scope = garden.DiskLimitScopeExclusive
 			})
 
-			PContext("and run a process that would exceed the quota due to the size of the rootfs", func() {
+			Context("and run a process that would exceed the quota due to the size of the rootfs", func() {
 				It("does not kill the process", func() {
 					dd, err := container.Run(garden.ProcessSpec{
 						User: "root",
@@ -315,7 +315,7 @@ var _ = Describe("Limits", func() {
 			})
 		})
 
-		PContext("when multiple containers are created for the same user", func() {
+		Context("when multiple containers are created for the same user", func() {
 			var container2 garden.Container
 			var err error
 
