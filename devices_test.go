@@ -15,8 +15,8 @@ var _ = Describe("Devices", func() {
 		func(device string, major, minor int) {
 			buffer := gbytes.NewBuffer()
 			process, err := container.Run(garden.ProcessSpec{
-				Path: "stat",
-				Args: []string{"-c", "%t,%T", device},
+				Path: "ls",
+				Args: []string{"-l", device},
 			}, garden.ProcessIO{Stdout: buffer, Stderr: GinkgoWriter})
 			Expect(err).ToNot(HaveOccurred())
 
@@ -24,7 +24,7 @@ var _ = Describe("Devices", func() {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(exitCode).To(Equal(0))
 
-			Expect(buffer).To(gbytes.Say(fmt.Sprintf("%d,%d", major, minor)))
+			Expect(buffer).To(gbytes.Say(fmt.Sprintf(`%d,\s*%d`, major, minor)))
 		},
 
 		Entry("should have the TTY device", "/dev/tty", 5, 0),
@@ -40,8 +40,8 @@ var _ = Describe("Devices", func() {
 		func(device, fd string) {
 			buffer := gbytes.NewBuffer()
 			process, err := container.Run(garden.ProcessSpec{
-				Path: "stat",
-				Args: []string{"-c", "%N %F", device},
+				Path: "ls",
+				Args: []string{"-l", device},
 			}, garden.ProcessIO{Stdout: buffer, Stderr: GinkgoWriter})
 			Expect(err).ToNot(HaveOccurred())
 
@@ -49,7 +49,7 @@ var _ = Describe("Devices", func() {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(exitCode).To(Equal(0))
 
-			Expect(buffer).To(gbytes.Say(fmt.Sprintf("'%s' -> '%s' symbolic link", device, fd)))
+			Expect(buffer).To(gbytes.Say(fmt.Sprintf("%s -> %s", device, fd)))
 		},
 		Entry("should have /dev/fd", "/dev/fd", "/proc/self/fd"),
 		Entry("should have /dev/stdin", "/dev/stdin", "/proc/self/fd/0"),

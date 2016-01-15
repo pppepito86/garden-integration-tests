@@ -1,6 +1,8 @@
 package garden_integration_tests_test
 
 import (
+	"fmt"
+
 	"github.com/cloudfoundry-incubator/garden"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -45,16 +47,7 @@ var _ = Describe("Limits", func() {
 		// pulling images from docker. Once it does, we'll be able to (successfully)
 		// use the garden busybox image on dockerhub, which has alice already.
 		JustBeforeEach(func() {
-			process, err := container.Run(garden.ProcessSpec{
-				User: "root",
-				Path: "sh",
-				Args: []string{"-c", "id -u alice || adduser -D alice"},
-			}, garden.ProcessIO{
-				Stdout: GinkgoWriter,
-				Stderr: GinkgoWriter,
-			})
-			Expect(err).ToNot(HaveOccurred())
-			Expect(process.Wait()).To(Equal(0))
+			createUser(container, "alice")
 		})
 
 		PDescribeTable("Metrics",
@@ -332,6 +325,11 @@ var _ = Describe("Limits", func() {
 					Limits:     limits,
 				})
 				Expect(err).ToNot(HaveOccurred())
+
+				// Add alice user to guardian tests, because guardian doesn't yet support
+				// pulling images from docker. Once it does, we'll be able to (successfully)
+				// use the garden busybox image on dockerhub, which has alice already.
+				createUser(container2, "alice")
 			})
 
 			AfterEach(func() {
@@ -344,7 +342,7 @@ var _ = Describe("Limits", func() {
 				process, err := container.Run(garden.ProcessSpec{
 					User: "alice",
 					Path: "dd",
-					Args: []string{"if=/dev/urandom", "of=/home/alice/some-file", "bs=1M", "count=40"},
+					Args: []string{"if=/dev/urandom", "of=/tmp/some-file", "bs=1M", "count=40"},
 				}, garden.ProcessIO{})
 				Expect(err).ToNot(HaveOccurred())
 				Expect(process.Wait()).To(Equal(0))
@@ -352,7 +350,7 @@ var _ = Describe("Limits", func() {
 				process, err = container2.Run(garden.ProcessSpec{
 					User: "alice",
 					Path: "dd",
-					Args: []string{"if=/dev/urandom", "of=/home/alice/some-file", "bs=1M", "count=40"},
+					Args: []string{"if=/dev/urandom", "of=/tmp/some-file", "bs=1M", "count=40"},
 				}, garden.ProcessIO{})
 				Expect(err).ToNot(HaveOccurred())
 				Expect(process.Wait()).To(Equal(0))
@@ -360,3 +358,16 @@ var _ = Describe("Limits", func() {
 		})
 	})
 })
+
+func createUser(container garden.Container, username string) {
+	process, err := container.Run(garden.ProcessSpec{
+		User: "root",
+		Path: "sh",
+		Args: []string{"-c", fmt.Sprintf("id -u %s || adduser -D %s", username, username)},
+	}, garden.ProcessIO{
+		Stdout: GinkgoWriter,
+		Stderr: GinkgoWriter,
+	})
+	Expect(err).ToNot(HaveOccurred())
+	Expect(process.Wait()).To(Equal(0))
+}
