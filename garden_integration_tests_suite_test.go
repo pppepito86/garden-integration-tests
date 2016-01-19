@@ -38,6 +38,9 @@ func TestGardenIntegrationTests(t *testing.T) {
 		properties = garden.Properties{}
 		limits = garden.Limits{}
 		gardenHost = os.Getenv("GARDEN_ADDRESS")
+		if gardenHost == "" {
+			gardenHost = "10.244.16.6:7777"
+		}
 		gardenClient = client.New(connection.New("tcp", gardenHost))
 	})
 
