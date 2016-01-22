@@ -288,20 +288,21 @@ var _ = Describe("Lifecycle", func() {
 			})
 
 			checkProcessIsGone := func(container garden.Container, argsPrefix string) {
-				stdout := gbytes.NewBuffer()
-				process, err := container.Run(garden.ProcessSpec{
-					User: "alice",
-					Path: "sh",
-					Args: []string{"-c", fmt.Sprintf(`
+				Eventually(func() (int, error) {
+					stdout := gbytes.NewBuffer()
+					process, err := container.Run(garden.ProcessSpec{
+						User: "alice",
+						Path: "sh",
+						Args: []string{"-c", fmt.Sprintf(`
 						 ps ax -o args= | grep -q '^%s'
 					 `, argsPrefix)},
-				}, garden.ProcessIO{
-					Stdout: io.MultiWriter(stdout, GinkgoWriter),
-					Stderr: GinkgoWriter,
-				})
-				Expect(err).ToNot(HaveOccurred())
-				Expect(process.Wait()).To(Equal(1))
-				Eventually(stdout).ShouldNot(gbytes.Say("waiting"))
+					}, garden.ProcessIO{
+						Stdout: io.MultiWriter(stdout, GinkgoWriter),
+						Stderr: GinkgoWriter,
+					})
+					Expect(err).ToNot(HaveOccurred())
+					return process.Wait()
+				}).Should(Equal(1))
 			}
 
 			It("sends a KILL signal to the process if requested", func(done Done) {
