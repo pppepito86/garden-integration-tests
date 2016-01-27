@@ -484,7 +484,7 @@ var _ = Describe("Security", func() {
 	})
 
 	Context("by default (unprivileged)", func() {
-		PIt("does not get root privileges on host resources", func() {
+		It("does not get root privileges on host resources", func() {
 			process, err := container.Run(garden.ProcessSpec{
 				Path: "sh",
 				User: "root",
@@ -506,9 +506,9 @@ var _ = Describe("Security", func() {
 			Expect(process.Wait()).To(Equal(0))
 		})
 
-		PContext("with a docker image", func() {
+		Context("with a docker image", func() {
 			BeforeEach(func() {
-				rootfs = "docker:///cloudfoundry/preexisting_users"
+				//rootfs = "docker:///cloudfoundry/preexisting_users"
 			})
 
 			It("sees root-owned files in the rootfs as owned by the container's root user", func() {
@@ -516,8 +516,8 @@ var _ = Describe("Security", func() {
 				process, err := container.Run(garden.ProcessSpec{
 					User: "root",
 					Path: "sh",
-					Args: []string{"-c", `ls -l /sbin | grep -v wsh | grep -v hook | grep -v proc_starter | grep -v initd`},
-				}, garden.ProcessIO{Stdout: stdout})
+					Args: []string{"-c", `ls -l /bin | grep -v wsh | grep -v hook | grep -v proc_starter | grep -v initd`},
+				}, garden.ProcessIO{Stdout: stdout, Stderr: GinkgoWriter})
 				Expect(err).ToNot(HaveOccurred())
 
 				Expect(process.Wait()).To(Equal(0))
@@ -531,7 +531,7 @@ var _ = Describe("Security", func() {
 				process, err := container.Run(garden.ProcessSpec{
 					User: "root",
 					Path: "sh",
-					Args: []string{"-c", "ls -l /dev/pts /dev/ptmx"},
+					Args: []string{"-c", "ls -l /dev/pts /dev/ptmx /dev/pts/ptmx"},
 				}, garden.ProcessIO{Stdout: stdout, Stderr: GinkgoWriter})
 				Expect(err).ToNot(HaveOccurred())
 
@@ -541,12 +541,12 @@ var _ = Describe("Security", func() {
 				Expect(stdout).To(gbytes.Say(" root "))
 			})
 
-			It("sees alice-owned files as owned by alice", func() {
+			PIt("sees alice-owned files as owned by alice", func() {
 				stdout := gbytes.NewBuffer()
 				process, err := container.Run(garden.ProcessSpec{
 					User: "alice",
 					Path: "sh",
-					Args: []string{"-c", `ls -l /home/alice`},
+					Args: []string{"-c", `ls -la /home/alice`},
 				}, garden.ProcessIO{Stdout: stdout})
 				Expect(err).ToNot(HaveOccurred())
 
@@ -555,12 +555,12 @@ var _ = Describe("Security", func() {
 				Expect(stdout).To(gbytes.Say(" alicesfile"))
 			})
 
-			It("sees devices as owned by root", func() {
+			PIt("sees devices as owned by root", func() {
 				out := gbytes.NewBuffer()
 				process, err := container.Run(garden.ProcessSpec{
 					User: "root",
 					Path: "ls",
-					Args: []string{"-la", "/dev/tty"},
+					Args: []string{"-la", "/dev/"},
 				}, garden.ProcessIO{
 					Stdout: out,
 					Stderr: out,
@@ -572,7 +572,7 @@ var _ = Describe("Security", func() {
 				Expect(string(out.Contents())).ToNot(ContainSubstring("65534"))
 			})
 
-			It("lets alice write in /home/alice", func() {
+			PIt("lets alice write in /home/alice", func() {
 				process, err := container.Run(garden.ProcessSpec{
 					User: "alice",
 					Path: "touch",
@@ -592,7 +592,7 @@ var _ = Describe("Security", func() {
 				Expect(process.Wait()).To(Equal(0))
 			})
 
-			It("preserves pre-existing dotfiles from base image", func() {
+			PIt("preserves pre-existing dotfiles from base image", func() {
 				out := gbytes.NewBuffer()
 				process, err := container.Run(garden.ProcessSpec{
 					User: "root",
@@ -635,12 +635,12 @@ var _ = Describe("Security", func() {
 			Expect(process.Wait()).To(Equal(0))
 		})
 
-		PIt("sees root-owned files in the rootfs as owned by the container's root user", func() {
+		It("sees root-owned files in the rootfs as owned by the container's root user", func() {
 			stdout := gbytes.NewBuffer()
 			process, err := container.Run(garden.ProcessSpec{
 				User: "root",
 				Path: "sh",
-				Args: []string{"-c", `ls -l /sbin | grep -v wsh | grep -v hook`},
+				Args: []string{"-c", `ls -l /bin | grep -v wsh | grep -v hook`},
 			}, garden.ProcessIO{Stdout: io.MultiWriter(GinkgoWriter, stdout)})
 			Expect(err).ToNot(HaveOccurred())
 
