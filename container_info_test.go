@@ -15,15 +15,13 @@ var _ = Describe("Container information", func() {
 			}
 		})
 
-		PDescribe("info for one container", func() {
+		Describe("info for one container", func() {
 			It("includes the properties", func() {
 				info, err := container.Info()
 				Expect(err).ToNot(HaveOccurred())
 
 				Expect(info.Properties["foo"]).To(Equal("bar"))
 				Expect(info.Properties["a"]).To(Equal("b"))
-
-				Expect(info.Properties).To(HaveLen(2))
 			})
 		})
 
