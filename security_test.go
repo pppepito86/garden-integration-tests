@@ -128,7 +128,7 @@ var _ = Describe("Security", func() {
 
 			Expect(err).ToNot(HaveOccurred())
 			Expect(process.Wait()).To(Equal(0))
-			Expect(stdout).To(gbytes.Say("tmpfs /tmp tmpfs"))
+			Expect(stdout).To(gbytes.Say("tmpfs /dev/shm tmpfs"))
 		})
 
 		Context("in an unprivileged container", func() {
