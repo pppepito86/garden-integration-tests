@@ -9,27 +9,37 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Limits", func() {
-	PDescribe("LimitMemory", func() {
-		Context("with a memory limit", func() {
-			JustBeforeEach(func() {
-				err := container.LimitMemory(garden.MemoryLimits{
-					LimitInBytes: 64 * 1024 * 1024,
-				})
+var _ = FDescribe("Limits", func() {
+	Describe("LimitMemory", func() {
+		BeforeEach(func() {
+			limits.Memory = garden.MemoryLimits{
+				LimitInBytes: 64 * 1024 * 1024,
+			}
+		})
+
+		Context("when the process writes too much to /dev/shm/too-big", func() {
+			It("is killed", func() {
+				process, err := container.Run(garden.ProcessSpec{
+					User: "alice",
+					Path: "dd",
+					Args: []string{"if=/dev/urandom", "of=/dev/shm/too-big", "bs=1M", "count=65"},
+				}, ginkgoIO,
+				)
 				Expect(err).ToNot(HaveOccurred())
+				Expect(process.Wait()).ToNot(Equal(0))
 			})
+		})
 
-			Context("when the process writes too much to /dev/shm", func() {
-				It("is killed", func() {
-					process, err := container.Run(garden.ProcessSpec{
-						User: "alice",
-						Path: "dd",
-						Args: []string{"if=/dev/urandom", "of=/dev/shm/too-big", "bs=1M", "count=65"},
-					}, garden.ProcessIO{})
-					Expect(err).ToNot(HaveOccurred())
-
-					Expect(process.Wait()).ToNot(Equal(0))
-				})
+		Context("when the process writes just enough to /dev/shm/just-enough", func() {
+			It("is not killed", func() {
+				process, err := container.Run(garden.ProcessSpec{
+					User: "alice",
+					Path: "dd",
+					Args: []string{"if=/dev/urandom", "of=/dev/shm/just-enough", "bs=1M", "count=60"},
+				}, ginkgoIO,
+				)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(process.Wait()).To(Equal(0))
 			})
 		})
 	})

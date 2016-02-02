@@ -23,6 +23,10 @@ var (
 	privilegedContainer bool
 	properties          garden.Properties
 	limits              garden.Limits
+	ginkgoIO            garden.ProcessIO = garden.ProcessIO{
+		Stdout: GinkgoWriter,
+		Stderr: GinkgoWriter,
+	}
 )
 
 func TestGardenIntegrationTests(t *testing.T) {
