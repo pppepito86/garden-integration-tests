@@ -1,8 +1,6 @@
 package garden_integration_tests_test
 
 import (
-	"fmt"
-
 	"github.com/cloudfoundry-incubator/garden"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -15,13 +13,6 @@ var _ = Describe("Limits", func() {
 			limits.Memory = garden.MemoryLimits{
 				LimitInBytes: 64 * 1024 * 1024,
 			}
-		})
-
-		// Add alice user to guardian tests, because guardian doesn't yet support
-		// pulling images from docker. Once it does, we'll be able to (successfully)
-		// use the garden busybox image on dockerhub, which has alice already.
-		JustBeforeEach(func() {
-			createUser(container, "alice")
 		})
 
 		Context("when the process writes too much to /dev/shm/too-big", func() {
@@ -58,13 +49,6 @@ var _ = Describe("Limits", func() {
 			limits.Disk.ByteSoft = 100 * 1024 * 1024
 			limits.Disk.ByteHard = 100 * 1024 * 1024
 			limits.Disk.Scope = garden.DiskLimitScopeTotal
-		})
-
-		// Add alice user to guardian tests, because guardian doesn't yet support
-		// pulling images from docker. Once it does, we'll be able to (successfully)
-		// use the garden busybox image on dockerhub, which has alice already.
-		JustBeforeEach(func() {
-			createUser(container, "alice")
 		})
 
 		PDescribeTable("Metrics",
@@ -306,13 +290,7 @@ var _ = Describe("Limits", func() {
 
 			Context("and run a process that exceeds the quota as a new user", func() {
 				It("kills the process", func() {
-					addUser, err := container.Run(garden.ProcessSpec{
-						User: "root",
-						Path: "adduser",
-						Args: []string{"-D", "-g", "", "bob"},
-					}, ginkgoIO)
-					Expect(err).ToNot(HaveOccurred())
-					Expect(addUser.Wait()).To(Equal(0))
+					createUser(container, "bob")
 
 					dd, err := container.Run(garden.ProcessSpec{
 						User: "bob",
@@ -375,16 +353,3 @@ var _ = Describe("Limits", func() {
 		})
 	})
 })
-
-func createUser(container garden.Container, username string) {
-	process, err := container.Run(garden.ProcessSpec{
-		User: "root",
-		Path: "sh",
-		Args: []string{"-c", fmt.Sprintf("id -u %s || adduser -D %s", username, username)},
-	}, garden.ProcessIO{
-		Stdout: GinkgoWriter,
-		Stderr: GinkgoWriter,
-	})
-	Expect(err).ToNot(HaveOccurred())
-	Expect(process.Wait()).To(Equal(0))
-}

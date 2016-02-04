@@ -1,6 +1,7 @@
 package garden_integration_tests_test
 
 import (
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -59,6 +60,12 @@ func TestGardenIntegrationTests(t *testing.T) {
 		if assertContainerCreate {
 			Expect(containerCreateErr).ToNot(HaveOccurred())
 		}
+
+		// Add alice user to guardian tests, because guardian doesn't yet support
+		// pulling images from docker. Once it does, we'll be able to (successfully)
+		// use the garden busybox image on dockerhub, which has alice already.
+		createUser(container, "alice")
+
 	})
 
 	AfterEach(func() {
@@ -80,4 +87,17 @@ func getContainerHandles() []string {
 	}
 
 	return handles
+}
+
+func createUser(container garden.Container, username string) {
+	process, err := container.Run(garden.ProcessSpec{
+		User: "root",
+		Path: "sh",
+		Args: []string{"-c", fmt.Sprintf("id -u %s || adduser -D %s", username, username)},
+	}, garden.ProcessIO{
+		Stdout: GinkgoWriter,
+		Stderr: GinkgoWriter,
+	})
+	Expect(err).ToNot(HaveOccurred())
+	Expect(process.Wait()).To(Equal(0))
 }

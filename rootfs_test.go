@@ -22,16 +22,7 @@ var _ = PDescribe("Rootfses", func() {
 			})
 
 			JustBeforeEach(func() {
-				process, err := container.Run(garden.ProcessSpec{
-					User: "root",
-					Path: "adduser",
-					Args: []string{"-D", "bob"},
-				}, garden.ProcessIO{
-					Stdout: GinkgoWriter,
-					Stderr: GinkgoWriter,
-				})
-				Expect(err).ToNot(HaveOccurred())
-				Expect(process.Wait()).To(Equal(0))
+				createUser(container, "bob")
 			})
 
 			It("$PATH is taken from the docker image", func() {

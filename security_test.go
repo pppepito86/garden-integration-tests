@@ -11,22 +11,6 @@ import (
 )
 
 var _ = Describe("Security", func() {
-	// Add alice user to guardian tests, because guardian doesn't yet support
-	// pulling images from docker. Once it does, we'll be able to (successfully)
-	// use the garden busybox image on dockerhub, which has alice already.
-	JustBeforeEach(func() {
-		process, err := container.Run(garden.ProcessSpec{
-			User: "root",
-			Path: "sh",
-			Args: []string{"-c", "id -u alice || adduser -D alice"},
-		}, garden.ProcessIO{
-			Stdout: GinkgoWriter,
-			Stderr: GinkgoWriter,
-		})
-		Expect(err).ToNot(HaveOccurred())
-		Expect(process.Wait()).To(Equal(0))
-	})
-
 	Describe("PID namespace", func() {
 		It("isolates processes so that only processes from inside the container are visible", func() {
 			_, err := container.Run(garden.ProcessSpec{

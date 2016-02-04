@@ -21,22 +21,6 @@ import (
 
 var _ = Describe("Lifecycle", func() {
 
-	// Add alice user to guardian tests, because guardian doesn't yet support
-	// pulling images from docker. Once it does, we'll be able to (successfully)
-	// use the garden busybox image on dockerhub, which has alice already.
-	JustBeforeEach(func() {
-		process, err := container.Run(garden.ProcessSpec{
-			User: "root",
-			Path: "sh",
-			Args: []string{"-c", "id -u alice || adduser -D alice"},
-		}, garden.ProcessIO{
-			Stdout: GinkgoWriter,
-			Stderr: GinkgoWriter,
-		})
-		Expect(err).ToNot(HaveOccurred())
-		Expect(process.Wait()).To(Equal(0))
-	})
-
 	PContext("Creating a container with limits", func() {
 		BeforeEach(func() {
 			limits = garden.Limits{
@@ -135,16 +119,7 @@ var _ = Describe("Lifecycle", func() {
 			})
 
 			JustBeforeEach(func() {
-				process, err := container.Run(garden.ProcessSpec{
-					User: "root",
-					Path: "adduser",
-					Args: []string{"-D", "bob"},
-				}, garden.ProcessIO{
-					Stdout: GinkgoWriter,
-					Stderr: GinkgoWriter,
-				})
-				Expect(err).ToNot(HaveOccurred())
-				Expect(process.Wait()).To(Equal(0))
+				createUser(container, "bob")
 			})
 
 			It("creates the volume directory, if it does not already exist", func() {
@@ -860,16 +835,7 @@ var _ = Describe("Lifecycle", func() {
 
 			PContext("when the specified user does not have permission to stream in", func() {
 				JustBeforeEach(func() {
-					process, err := container.Run(garden.ProcessSpec{
-						User: "root",
-						Path: "adduser",
-						Args: []string{"-D", "bob"},
-					}, garden.ProcessIO{
-						Stdout: GinkgoWriter,
-						Stderr: GinkgoWriter,
-					})
-					Expect(err).ToNot(HaveOccurred())
-					Expect(process.Wait()).To(Equal(0))
+					createUser(container, "bob")
 				})
 
 				It("returns error", func() {
