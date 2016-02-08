@@ -11,11 +11,7 @@ import (
 	"github.com/onsi/gomega/gbytes"
 )
 
-var _ = PDescribe("Process", func() {
-	BeforeEach(func() {
-		rootfs = "docker:///ubuntu"
-	})
-
+var _ = Describe("Process", func() {
 	Describe("signalling", func() {
 		It("a process can be sent SIGTERM immediately after having been started", func() {
 			stdout := gbytes.NewBuffer()
@@ -41,7 +37,11 @@ var _ = PDescribe("Process", func() {
 		})
 	})
 
-	Describe("wait", func() {
+	PDescribe("wait", func() {
+		BeforeEach(func() {
+			rootfs = "docker:///ubuntu"
+		})
+
 		It("does not block in Wait() when all children of the process have exited", func() {
 			stderr := gbytes.NewBuffer()
 			process, err := container.Run(garden.ProcessSpec{
@@ -128,7 +128,7 @@ var _ = PDescribe("Process", func() {
 		})
 	})
 
-	Describe("working directory", func() {
+	PDescribe("working directory", func() {
 		BeforeEach(func() {
 			rootfs = "docker:///cloudfoundry/preexisting_users"
 		})
