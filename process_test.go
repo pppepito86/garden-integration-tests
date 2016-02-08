@@ -37,6 +37,28 @@ var _ = Describe("Process", func() {
 		})
 	})
 
+	Describe("environment", func() {
+		It("should apply the specified environment", func() {
+			stdout := gbytes.NewBuffer()
+
+			process, err := container.Run(garden.ProcessSpec{
+				Path: "env",
+				Env: []string{
+					"TEST=hello",
+					"FRUIT=banana",
+				},
+			}, garden.ProcessIO{
+				Stdout: stdout,
+			})
+			Expect(err).ToNot(HaveOccurred())
+			exitCode, err := process.Wait()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(exitCode).To(Equal(0))
+
+			Expect(stdout.Contents()).To(ContainSubstring("TEST=hello\nFRUIT=banana"))
+		})
+	})
+
 	PDescribe("wait", func() {
 		BeforeEach(func() {
 			rootfs = "docker:///ubuntu"

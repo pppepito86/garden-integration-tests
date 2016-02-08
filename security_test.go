@@ -331,25 +331,6 @@ var _ = Describe("Security", func() {
 				Expect(stdout).To(gbytes.Say("/home/alice\n"))
 			})
 
-			It("sets the specified environment variables", func() {
-				stdout := gbytes.NewBuffer()
-				process, err := container.Run(garden.ProcessSpec{
-					User: "alice",
-					Env:  []string{"VAR1=VALUE1", "VAR2=VALUE2"},
-					Path: "/bin/sh",
-					Args: []string{"-c", "env | sort"},
-				}, garden.ProcessIO{
-					Stdout: stdout,
-					Stderr: GinkgoWriter,
-				})
-				Expect(err).ToNot(HaveOccurred())
-
-				exitStatus, err := process.Wait()
-				Expect(err).ToNot(HaveOccurred())
-				Expect(exitStatus).To(Equal(0))
-				Expect(stdout).To(gbytes.Say("VAR1=VALUE1\nVAR2=VALUE2\n"))
-			})
-
 			PIt("searches a sanitized path not including /sbin for the executable", func() {
 				process, err := container.Run(garden.ProcessSpec{
 					User: "alice",
@@ -430,25 +411,6 @@ var _ = Describe("Security", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(exitStatus).To(Equal(0))
 				Expect(stdout).To(gbytes.Say("/root\n"))
-			})
-
-			It("sets the specified environment variables", func() {
-				stdout := gbytes.NewBuffer()
-				process, err := container.Run(garden.ProcessSpec{
-					User: "root",
-					Env:  []string{"VAR1=VALUE1", "VAR2=VALUE2"},
-					Path: "/bin/sh",
-					Args: []string{"-c", "env | sort"},
-				}, garden.ProcessIO{
-					Stdout: stdout,
-					Stderr: GinkgoWriter,
-				})
-				Expect(err).ToNot(HaveOccurred())
-
-				exitStatus, err := process.Wait()
-				Expect(err).ToNot(HaveOccurred())
-				Expect(exitStatus).To(Equal(0))
-				Expect(stdout).To(gbytes.Say("VAR1=VALUE1\nVAR2=VALUE2\n"))
 			})
 
 			It("searches a sanitized path not including /sbin for the executable", func() {
