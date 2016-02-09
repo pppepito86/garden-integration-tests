@@ -24,6 +24,7 @@ var (
 	privilegedContainer bool
 	properties          garden.Properties
 	limits              garden.Limits
+	env                 []string
 	ginkgoIO            garden.ProcessIO = garden.ProcessIO{
 		Stdout: GinkgoWriter,
 		Stderr: GinkgoWriter,
@@ -42,6 +43,7 @@ func TestGardenIntegrationTests(t *testing.T) {
 		privilegedContainer = false
 		properties = garden.Properties{}
 		limits = garden.Limits{}
+		env = []string{}
 		gardenHost = os.Getenv("GARDEN_ADDRESS")
 		if gardenHost == "" {
 			gardenHost = "10.244.16.6:7777"
@@ -54,6 +56,7 @@ func TestGardenIntegrationTests(t *testing.T) {
 			RootFSPath: rootfs,
 			Privileged: privilegedContainer,
 			Properties: properties,
+			Env:        env,
 			Limits:     limits,
 		})
 
