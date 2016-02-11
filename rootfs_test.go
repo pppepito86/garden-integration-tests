@@ -9,18 +9,30 @@ import (
 	"github.com/onsi/gomega/gbytes"
 )
 
-var _ = PDescribe("Rootfses", func() {
+var _ = Describe("Rootfses", func() {
+	BeforeEach(func() {
+		// Dockerfile contains:
+		//   ENV PATH /usr/local/bin:/usr/bin:/bin:/from-dockerfile
+		//   ENV TEST test-from-dockerfile
+		//   ENV TEST second-test-from-dockerfile:$TEST
+		//	 `VOLUME /foo`, see diego-dockerfiles/with-volume
+		// see diego-dockerfiles/with-volume
+		rootfs = "docker:///cloudfoundry/with-volume"
+
+		// Normally these tests do not require to run on privileged containers.
+		// However, it looks like for certain images (busybox,
+		// cloudfoundry/with-volume, etc) Guadian fails to create un-privileged
+		// containers. A story is created to fix this issue and once delivered,
+		// this section should be removed.
+		privilegedContainer = true
+	})
+
+	JustBeforeEach(func() {
+		createUser(container, "bob")
+	})
+
 	Context("when the rootfs path is a docker image URL", func() {
 		Context("and the image specifies $PATH", func() {
-			BeforeEach(func() {
-				// Dockerfile contains:
-				//   ENV PATH /usr/local/bin:/usr/bin:/bin:/from-dockerfile
-				//   ENV TEST test-from-dockerfile
-				//   ENV TEST second-test-from-dockerfile:$TEST
-				// see diego-dockerfiles/with-volume
-				rootfs = "docker:///cloudfoundry/with-volume"
-			})
-
 			It("$PATH is taken from the docker image", func() {
 				stdout := gbytes.NewBuffer()
 				process, err := container.Run(garden.ProcessSpec{
@@ -57,11 +69,6 @@ var _ = PDescribe("Rootfses", func() {
 		})
 
 		Context("and the image specifies a VOLUME", func() {
-			BeforeEach(func() {
-				// dockerfile contains `VOLUME /foo`, see diego-dockerfiles/with-volume
-				rootfs = "docker:///cloudfoundry/with-volume"
-			})
-
 			It("creates the volume directory, if it does not already exist", func() {
 				stdout := gbytes.NewBuffer()
 				process, err := container.Run(garden.ProcessSpec{
