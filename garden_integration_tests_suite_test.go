@@ -38,7 +38,6 @@ func TestGardenIntegrationTests(t *testing.T) {
 
 	BeforeEach(func() {
 		assertContainerCreate = true
-		// rootfs = "docker:///cloudfoundry/garden-busybox"
 		rootfs = ""
 		privilegedContainer = false
 		properties = garden.Properties{}
@@ -63,12 +62,6 @@ func TestGardenIntegrationTests(t *testing.T) {
 		if assertContainerCreate {
 			Expect(containerCreateErr).ToNot(HaveOccurred())
 		}
-
-		// Add alice user to guardian tests, because guardian doesn't yet support
-		// pulling images from docker. Once it does, we'll be able to (successfully)
-		// use the garden busybox image on dockerhub, which has alice already.
-		createUser(container, "alice")
-
 	})
 
 	AfterEach(func() {

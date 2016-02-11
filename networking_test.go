@@ -14,7 +14,7 @@ import (
 	"github.com/onsi/gomega/gexec"
 )
 
-var _ = PDescribe("Networking", func() {
+var _ = Describe("Networking", func() {
 	It("can be contacted after a NetIn", func() {
 		process, err := container.Run(garden.ProcessSpec{
 			Path: "sh",

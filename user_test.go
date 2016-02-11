@@ -10,8 +10,12 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = PDescribe("users", func() {
-	Context("when nobody maps to 65534", func() {
+var _ = Describe("users", func() {
+	BeforeEach(func() {
+		rootfs = "docker:///cloudfoundry/garden-busybox"
+	})
+
+	PContext("when nobody maps to 65534", func() {
 		BeforeEach(func() {
 			rootfs = "docker:///ubuntu"
 		})

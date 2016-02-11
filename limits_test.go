@@ -205,13 +205,16 @@ var _ = Describe("Limits", func() {
 			})
 		})
 
-		PContext("a rootfs with pre-existing users", func() {
+		Context("a rootfs with pre-existing users", func() {
 			BeforeEach(func() {
-				rootfs = "docker:///cloudfoundry/preexisting_users"
-
 				limits.Disk.ByteSoft = 10 * 1024 * 1024
 				limits.Disk.ByteHard = 10 * 1024 * 1024
 				limits.Disk.Scope = garden.DiskLimitScopeExclusive
+			})
+
+			JustBeforeEach(func() {
+				createUser(container, "alice")
+				createUser(container, "bob")
 			})
 
 			Context("and run a process that exceeds the quota as bob", func() {
@@ -321,9 +324,6 @@ var _ = Describe("Limits", func() {
 				})
 				Expect(err).ToNot(HaveOccurred())
 
-				// Add alice user to guardian tests, because guardian doesn't yet support
-				// pulling images from docker. Once it does, we'll be able to (successfully)
-				// use the garden busybox image on dockerhub, which has alice already.
 				createUser(container2, "alice")
 			})
 

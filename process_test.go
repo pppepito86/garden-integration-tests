@@ -88,7 +88,7 @@ var _ = Describe("Process", func() {
 		})
 	})
 
-	PDescribe("wait", func() {
+	Describe("wait", func() {
 		BeforeEach(func() {
 			rootfs = "docker:///ubuntu"
 		})
@@ -180,8 +180,8 @@ var _ = Describe("Process", func() {
 	})
 
 	PDescribe("working directory", func() {
-		BeforeEach(func() {
-			rootfs = "docker:///cloudfoundry/preexisting_users"
+		JustBeforeEach(func() {
+			createUser(container, "alice")
 		})
 
 		Context("when user has access to working directory", func() {

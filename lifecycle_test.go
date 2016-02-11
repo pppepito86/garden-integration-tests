@@ -20,6 +20,9 @@ import (
 )
 
 var _ = Describe("Lifecycle", func() {
+	JustBeforeEach(func() {
+		createUser(container, "alice")
+	})
 
 	PContext("Creating a container with limits", func() {
 		BeforeEach(func() {
@@ -54,7 +57,7 @@ var _ = Describe("Lifecycle", func() {
 		})
 	})
 
-	PIt("provides /dev/shm as tmpfs in the container", func() {
+	It("provides /dev/shm as tmpfs in the container", func() {
 		process, err := container.Run(garden.ProcessSpec{
 			User: "alice",
 			Path: "dd",
@@ -102,42 +105,12 @@ var _ = Describe("Lifecycle", func() {
 		})
 	})
 
-	PContext("and sending an Info request", func() {
+	Context("and sending an Info request", func() {
 		It("returns the container's info", func() {
 			info, err := container.Info()
 			Expect(err).ToNot(HaveOccurred())
 
 			Expect(info.State).To(Equal("active"))
-		})
-	})
-
-	PContext("Using a docker image", func() {
-		Context("when there is a VOLUME associated with the docker image", func() {
-			BeforeEach(func() {
-				// dockerfile contains `VOLUME /foo`, see diego-dockerfiles/with-volume
-				rootfs = "docker:///cloudfoundry/with-volume"
-			})
-
-			JustBeforeEach(func() {
-				createUser(container, "bob")
-			})
-
-			It("creates the volume directory, if it does not already exist", func() {
-				stdout := gbytes.NewBuffer()
-				process, err := container.Run(garden.ProcessSpec{
-					User: "bob",
-					Path: "ls",
-					Args: []string{"-l", "/"},
-				}, garden.ProcessIO{
-					Stdout: io.MultiWriter(GinkgoWriter, stdout),
-					Stderr: GinkgoWriter,
-				})
-
-				Expect(err).ToNot(HaveOccurred())
-
-				process.Wait()
-				Expect(stdout).To(gbytes.Say("foo"))
-			})
 		})
 	})
 
@@ -764,7 +737,7 @@ var _ = Describe("Lifecycle", func() {
 				Expect(err).ToNot(HaveOccurred())
 			})
 
-			PIt("creates the files in the container, as the specified user", func() {
+			It("creates the files in the container, as the specified user", func() {
 				err := container.StreamIn(garden.StreamInSpec{
 					User:      "alice",
 					Path:      "/home/alice",
@@ -798,7 +771,7 @@ var _ = Describe("Lifecycle", func() {
 				Expect(output).To(gbytes.Say("alice"))
 			})
 
-			PContext("when no user specified", func() {
+			Context("when no user specified", func() {
 				It("streams the files in as root", func() {
 					err := container.StreamIn(garden.StreamInSpec{
 						Path:      "/home/alice",

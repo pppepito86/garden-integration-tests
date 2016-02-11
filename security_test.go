@@ -115,12 +115,12 @@ var _ = Describe("Security", func() {
 			Expect(stdout).To(gbytes.Say("tmpfs /dev/shm tmpfs"))
 		})
 
-		Context("in an unprivileged container", func() {
+		PContext("in an unprivileged container", func() {
 			BeforeEach(func() {
 				privilegedContainer = false
 			})
 
-			PIt("/proc IS mounted as Read-Only", func() {
+			It("/proc IS mounted as Read-Only", func() {
 				stdout := gbytes.NewBuffer()
 
 				process, err := container.Run(garden.ProcessSpec{
@@ -137,7 +137,7 @@ var _ = Describe("Security", func() {
 				Expect(stdout).To(gbytes.Say("proc /proc proc ro"))
 			})
 
-			PIt("/sys IS mounted as Read-Only", func() {
+			It("/sys IS mounted as Read-Only", func() {
 				stdout := gbytes.NewBuffer()
 
 				process, err := container.Run(garden.ProcessSpec{
@@ -197,7 +197,7 @@ var _ = Describe("Security", func() {
 	})
 
 	Describe("Control groups", func() {
-		PIt("places the container in the required cgroup subsystems", func() {
+		It("places the container in the required cgroup subsystems", func() {
 			stdout := gbytes.NewBuffer()
 			process, err := container.Run(garden.ProcessSpec{
 				User: "root",
@@ -223,6 +223,10 @@ var _ = Describe("Security", func() {
 	})
 
 	Describe("Users and groups", func() {
+		JustBeforeEach(func() {
+			createUser(container, "alice")
+		})
+
 		PIt("maintains setuid permissions in unprivileged containers", func() {
 			stdout := gbytes.NewBuffer()
 			container.Run(garden.ProcessSpec{
@@ -255,6 +259,10 @@ var _ = Describe("Security", func() {
 		})
 
 		Context("when running a command as a non-root user", func() {
+			JustBeforeEach(func() {
+				createUser(container, "alice")
+			})
+
 			PIt("executes with setuid and setgid", func() {
 				stdout := gbytes.NewBuffer()
 				process, err := container.Run(garden.ProcessSpec{
@@ -356,7 +364,6 @@ var _ = Describe("Security", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(exitStatus).To(Equal(255))
 			})
-
 		})
 
 		Context("when running a command as root", func() {
@@ -454,7 +461,11 @@ var _ = Describe("Security", func() {
 
 		Context("with a docker image", func() {
 			BeforeEach(func() {
-				//rootfs = "docker:///cloudfoundry/preexisting_users"
+				rootfs = "docker:///cloudfoundry/garden-busybox"
+			})
+
+			JustBeforeEach(func() {
+				createUser(container, "alice")
 			})
 
 			It("sees root-owned files in the rootfs as owned by the container's root user", func() {
@@ -518,7 +529,7 @@ var _ = Describe("Security", func() {
 				Expect(string(out.Contents())).ToNot(ContainSubstring("65534"))
 			})
 
-			PIt("lets alice write in /home/alice", func() {
+			It("lets alice write in /home/alice", func() {
 				process, err := container.Run(garden.ProcessSpec{
 					User: "alice",
 					Path: "touch",
