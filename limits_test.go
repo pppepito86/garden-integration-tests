@@ -101,7 +101,7 @@ var _ = Describe("Limits", func() {
 			})
 		})
 
-		PContext("when the scope is total", func() {
+		Context("when the scope is total", func() {
 			BeforeEach(func() {
 				rootfs = "docker:///busybox#1.23"
 				limits.Disk.ByteSoft = 10 * 1024 * 1024
@@ -114,7 +114,7 @@ var _ = Describe("Limits", func() {
 					privilegedContainer = true
 				})
 
-				It("reports initial total bytes of a container based on size of image", func() {
+				PIt("reports initial total bytes of a container based on size of image", func() {
 					metrics, err := container.Metrics()
 					Expect(err).ToNot(HaveOccurred())
 
@@ -128,7 +128,7 @@ var _ = Describe("Limits", func() {
 					privilegedContainer = false
 				})
 
-				It("reports initial total bytes of a container based on size of image", func() {
+				PIt("reports initial total bytes of a container based on size of image", func() {
 					metrics, err := container.Metrics()
 					Expect(err).ToNot(HaveOccurred())
 
@@ -142,7 +142,7 @@ var _ = Describe("Limits", func() {
 					dd, err := container.Run(garden.ProcessSpec{
 						User: "root",
 						Path: "dd",
-						Args: []string{"if=/dev/random", "of=/root/test", "bs=1M", "count=7"},
+						Args: []string{"if=/dev/zero", "of=/root/test", "bs=1M", "count=7"},
 					}, garden.ProcessIO{Stdout: GinkgoWriter, Stderr: GinkgoWriter})
 					Expect(err).ToNot(HaveOccurred())
 					Expect(dd.Wait()).To(Equal(0))
