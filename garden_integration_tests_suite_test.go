@@ -86,6 +86,10 @@ func getContainerHandles() []string {
 }
 
 func createUser(container garden.Container, username string) {
+	if container == nil {
+		return
+	}
+
 	process, err := container.Run(garden.ProcessSpec{
 		User: "root",
 		Path: "sh",
