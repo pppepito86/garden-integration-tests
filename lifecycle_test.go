@@ -306,27 +306,29 @@ var _ = Describe("Lifecycle", func() {
 				close(done)
 			}, 10.0)
 
-			Context("when killing a process that does not use streaming", func() {
+			PContext("when killing a process that does not use streaming", func() {
 				var process garden.Process
 
 				JustBeforeEach(func() {
 					var err error
 
+					buff := gbytes.NewBuffer()
 					process, err = container.Run(garden.ProcessSpec{
 						User: "alice",
-						Path: "sleep",
-						Args: []string{"1000"},
-					}, garden.ProcessIO{})
+						Path: "sh",
+						Args: []string{
+							"-c", "echo hello; sleep 1000",
+						},
+					}, garden.ProcessIO{Stdout: buff})
 					Expect(err).ToNot(HaveOccurred())
 
+					Eventually(buff).Should(gbytes.Say("hello")) // make sure we dont kill before the process is spawned to avoid false-positives
 					Expect(process.Signal(garden.SignalKill)).To(Succeed())
 				})
 
 				It("goes away", func(done Done) {
 					Expect(process.Wait()).NotTo(Equal(0))
-
 					checkProcessIsGone(container, "sleep")
-
 					close(done)
 				}, 30.0)
 			})
