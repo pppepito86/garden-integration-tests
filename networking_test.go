@@ -47,6 +47,8 @@ var _ = Describe("Networking", func() {
 	})
 
 	It("can access a remote address after a NetOut", func() {
+		createUser(container, "alice")
+
 		ips, err := net.LookupIP("www.example.com")
 		Expect(err).ToNot(HaveOccurred())
 		Expect(ips).ToNot(BeEmpty())

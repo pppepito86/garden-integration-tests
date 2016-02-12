@@ -8,6 +8,10 @@ import (
 )
 
 var _ = Describe("Limits", func() {
+	JustBeforeEach(func() {
+		createUser(container, "alice")
+	})
+
 	Describe("LimitMemory", func() {
 		BeforeEach(func() {
 			limits.Memory = garden.MemoryLimits{

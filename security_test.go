@@ -13,6 +13,8 @@ import (
 var _ = Describe("Security", func() {
 	Describe("PID namespace", func() {
 		It("isolates processes so that only processes from inside the container are visible", func() {
+			createUser(container, "alice")
+
 			_, err := container.Run(garden.ProcessSpec{
 				User: "alice",
 				Path: "sleep",
