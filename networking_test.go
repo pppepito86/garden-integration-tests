@@ -63,6 +63,36 @@ var _ = Describe("Networking", func() {
 
 		Expect(checkInternet(container, externalIP)).To(Succeed())
 	})
+
+	Describe("domain name resolution", func() {
+		itCanResolve := func(domainName string) {
+			proc, err := container.Run(garden.ProcessSpec{
+				// Nslookup normally does not use /etc/hosts. Apparently in BusyBox
+				// this is not the case and resolution of localhost and $HOSTNAME
+				// works fine.
+				Path: "nslookup",
+				Args: []string{domainName},
+				User: "root",
+			}, ginkgoIO)
+			Expect(err).NotTo(HaveOccurred())
+
+			exitCode, err := proc.Wait()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(exitCode).To(Equal(0))
+		}
+
+		It("can resolve localhost", func() {
+			itCanResolve("localhost")
+		})
+
+		It("can resolve its hostname", func() {
+			itCanResolve(container.Handle())
+		})
+
+		It("can resolve domain names", func() {
+			itCanResolve("www.example.com")
+		})
+	})
 })
 
 func checkInternet(container garden.Container, externalIP net.IP) error {
