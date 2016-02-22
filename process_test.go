@@ -196,8 +196,8 @@ var _ = Describe("Process", func() {
 						Stdout: out,
 						Stderr: out,
 					})
-
 					Expect(err).ToNot(HaveOccurred())
+
 					Expect(process.Wait()).To(Equal(0))
 					Eventually(out).Should(gbytes.Say("/home/alice"))
 				})
@@ -216,8 +216,8 @@ var _ = Describe("Process", func() {
 						Stdout: out,
 						Stderr: GinkgoWriter,
 					})
-
 					Expect(err).ToNot(HaveOccurred())
+
 					Expect(process.Wait()).To(Equal(0))
 					Eventually(out).Should(gbytes.Say("/home/alice/nonexistent"))
 				})
@@ -236,7 +236,6 @@ var _ = Describe("Process", func() {
 						Stdout: GinkgoWriter,
 						Stderr: io.MultiWriter(GinkgoWriter, out),
 					})
-
 					Expect(err).ToNot(HaveOccurred())
 
 					exitStatus, err := process.Wait()
@@ -256,12 +255,30 @@ var _ = Describe("Process", func() {
 						Stdout: GinkgoWriter,
 						Stderr: io.MultiWriter(GinkgoWriter, out),
 					})
-
 					Expect(err).ToNot(HaveOccurred())
+
 					exitStatus, err := process.Wait()
 					Expect(exitStatus).ToNot(Equal(0))
 					Expect(out).To(gbytes.Say("proc_starter: ExecAsUser: system: mkdir /root/nonexistent: permission denied"))
 				})
+			})
+		})
+
+		Context("when the user does not specify the working directory", func() {
+			It("should have the user home directory in the output", func() {
+				out := gbytes.NewBuffer()
+				process, err := container.Run(garden.ProcessSpec{
+					User: "alice",
+					Path: "pwd",
+				}, garden.ProcessIO{
+					Stdout: out,
+					Stderr: GinkgoWriter,
+				})
+				Expect(err).NotTo(HaveOccurred())
+
+				exitStatus, err := process.Wait()
+				Expect(exitStatus).To(Equal(0))
+				Expect(out).To(gbytes.Say("/home/alice"))
 			})
 		})
 	})
