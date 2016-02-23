@@ -179,47 +179,45 @@ var _ = Describe("Process", func() {
 		})
 	})
 
-	PDescribe("working directory", func() {
+	Describe("working directory", func() {
 		JustBeforeEach(func() {
 			createUser(container, "alice")
 		})
 
 		Context("when user has access to working directory", func() {
 			Context("when working directory exists", func() {
-				It("a process is spawned", func() {
-					out := gbytes.NewBuffer()
+				It("spawns the process", func() {
+					stdout := gbytes.NewBuffer()
 					process, err := container.Run(garden.ProcessSpec{
 						User: "alice",
 						Dir:  "/home/alice",
 						Path: "pwd",
 					}, garden.ProcessIO{
-						Stdout: out,
-						Stderr: out,
-					})
-					Expect(err).ToNot(HaveOccurred())
-
-					Expect(process.Wait()).To(Equal(0))
-					Eventually(out).Should(gbytes.Say("/home/alice"))
-				})
-			})
-		})
-
-		Context("when user has access to create working directory", func() {
-			Context("when working directory does not exist", func() {
-				It("a process is spawned", func() {
-					out := gbytes.NewBuffer()
-					process, err := container.Run(garden.ProcessSpec{
-						User: "alice",
-						Dir:  "/home/alice/nonexistent",
-						Path: "pwd",
-					}, garden.ProcessIO{
-						Stdout: out,
+						Stdout: stdout,
 						Stderr: GinkgoWriter,
 					})
 					Expect(err).ToNot(HaveOccurred())
 
 					Expect(process.Wait()).To(Equal(0))
-					Eventually(out).Should(gbytes.Say("/home/alice/nonexistent"))
+					Eventually(stdout).Should(gbytes.Say("/home/alice"))
+				})
+			})
+
+			Context("when working directory does not exist", func() {
+				It("spawns the process", func() {
+					stdout := gbytes.NewBuffer()
+					process, err := container.Run(garden.ProcessSpec{
+						User: "alice",
+						Dir:  "/home/alice/nonexistent",
+						Path: "pwd",
+					}, garden.ProcessIO{
+						Stdout: stdout,
+						Stderr: GinkgoWriter,
+					})
+					Expect(err).ToNot(HaveOccurred())
+
+					Expect(process.Wait()).To(Equal(0))
+					Eventually(stdout).Should(gbytes.Say("/home/alice/nonexistent"))
 				})
 			})
 		})
@@ -227,44 +225,54 @@ var _ = Describe("Process", func() {
 		Context("when user does not have access to working directory", func() {
 			Context("when working directory does exist", func() {
 				It("returns an error", func() {
-					out := gbytes.NewBuffer()
 					process, err := container.Run(garden.ProcessSpec{
 						User: "alice",
-						Dir:  "/root",
-						Path: "ls",
+						Dir:  "/",
+						Path: "sh",
+						Args: []string{"-c", "ls -l /root"},
 					}, garden.ProcessIO{
 						Stdout: GinkgoWriter,
-						Stderr: io.MultiWriter(GinkgoWriter, out),
+						Stderr: GinkgoWriter,
+					})
+
+					process.Wait()
+
+					stderr := gbytes.NewBuffer()
+					process, err = container.Run(garden.ProcessSpec{
+						User: "alice",
+						Dir:  "/root",
+						Path: "touch",
+						Args: []string{"test.txt"},
+					}, garden.ProcessIO{
+						Stdout: GinkgoWriter,
+						Stderr: io.MultiWriter(GinkgoWriter, stderr),
 					})
 					Expect(err).ToNot(HaveOccurred())
-
 					exitStatus, err := process.Wait()
 					Expect(exitStatus).ToNot(Equal(0))
-					Expect(out).To(gbytes.Say("proc_starter: ExecAsUser: system: invalid working directory: /root"))
+					Expect(stderr).To(gbytes.Say("touch.*Permission denied"))
 				})
 			})
 
 			Context("when working directory does not exist", func() {
-				It("returns an error", func() {
-					out := gbytes.NewBuffer()
+				It("should create the working directory, and succeed", func() {
+					stderr := gbytes.NewBuffer()
 					process, err := container.Run(garden.ProcessSpec{
 						User: "alice",
 						Dir:  "/root/nonexistent",
-						Path: "pwd",
+						Path: "touch",
+						Args: []string{"test.txt"},
 					}, garden.ProcessIO{
 						Stdout: GinkgoWriter,
-						Stderr: io.MultiWriter(GinkgoWriter, out),
+						Stderr: stderr,
 					})
 					Expect(err).ToNot(HaveOccurred())
-
-					exitStatus, err := process.Wait()
-					Expect(exitStatus).ToNot(Equal(0))
-					Expect(out).To(gbytes.Say("proc_starter: ExecAsUser: system: mkdir /root/nonexistent: permission denied"))
+					Expect(process.Wait()).To(Equal(0))
 				})
 			})
 		})
 
-		Context("when the user does not specify the working directory", func() {
+		PContext("when the user does not specify the working directory", func() {
 			It("should have the user home directory in the output", func() {
 				out := gbytes.NewBuffer()
 				process, err := container.Run(garden.ProcessSpec{
