@@ -272,7 +272,7 @@ var _ = Describe("Process", func() {
 			})
 		})
 
-		PContext("when the user does not specify the working directory", func() {
+		Context("when the user does not specify the working directory", func() {
 			It("should have the user home directory in the output", func() {
 				out := gbytes.NewBuffer()
 				process, err := container.Run(garden.ProcessSpec{
