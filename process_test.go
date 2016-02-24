@@ -223,24 +223,26 @@ var _ = Describe("Process", func() {
 		})
 
 		Context("when user does not have access to working directory", func() {
+			JustBeforeEach(func() {
+				process, err := container.Run(garden.ProcessSpec{
+					User: "alice",
+					Path: "sh",
+					Args: []string{"-c", "mkdir -p /home/alice/nopermissions && chmod 0555 /home/alice/nopermissions"},
+				}, garden.ProcessIO{
+					Stdout: GinkgoWriter,
+					Stderr: GinkgoWriter,
+				})
+				Expect(err).ToNot(HaveOccurred())
+				exitStatus, err := process.Wait()
+				Expect(exitStatus).To(Equal(0))
+			})
+
 			Context("when working directory does exist", func() {
 				It("returns an error", func() {
+					stderr := gbytes.NewBuffer()
 					process, err := container.Run(garden.ProcessSpec{
 						User: "alice",
-						Dir:  "/",
-						Path: "sh",
-						Args: []string{"-c", "ls -l /root"},
-					}, garden.ProcessIO{
-						Stdout: GinkgoWriter,
-						Stderr: GinkgoWriter,
-					})
-
-					process.Wait()
-
-					stderr := gbytes.NewBuffer()
-					process, err = container.Run(garden.ProcessSpec{
-						User: "alice",
-						Dir:  "/root",
+						Dir:  "/home/alice/nopermissions",
 						Path: "touch",
 						Args: []string{"test.txt"},
 					}, garden.ProcessIO{
@@ -250,7 +252,7 @@ var _ = Describe("Process", func() {
 					Expect(err).ToNot(HaveOccurred())
 					exitStatus, err := process.Wait()
 					Expect(exitStatus).ToNot(Equal(0))
-					Expect(stderr).To(gbytes.Say("touch.*Permission denied"))
+					Expect(stderr).To(gbytes.Say("Permission denied"))
 				})
 			})
 
@@ -259,7 +261,7 @@ var _ = Describe("Process", func() {
 					stderr := gbytes.NewBuffer()
 					process, err := container.Run(garden.ProcessSpec{
 						User: "alice",
-						Dir:  "/root/nonexistent",
+						Dir:  "/home/alice/nopermissions/nonexistent",
 						Path: "touch",
 						Args: []string{"test.txt"},
 					}, garden.ProcessIO{
